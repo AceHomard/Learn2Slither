@@ -1,6 +1,6 @@
 import pygame
 from settings import SCREEN_SIZE, GRID_SIZE
-from snake import spawn_snake, get_snake_vision_matrix, display_matrix
+from snake import spawn_snake, get_snake_vision_matrix, display_matrix, choose_action
 from board import draw_board, spawn_apples, spawn_apple
 
 
@@ -8,11 +8,11 @@ def reset_game():
     green_apples = spawn_apples(GRID_SIZE, num_apples=2)
     red_apple = spawn_apple(GRID_SIZE, snake=[green_apples])
     snake = spawn_snake(length=3, grid_size=GRID_SIZE, green_apples=green_apples, red_apple=red_apple)
-    direction = None  # Le jeu attend la première input
+    result = None  # Le jeu attend la première input
     running = True  # On continue le jeu
     vision_matrix = get_snake_vision_matrix(snake, green_apples, red_apple, GRID_SIZE)
     display_matrix(vision_matrix)
-    return green_apples, red_apple, snake, direction, running
+    return green_apples, red_apple, snake, result, running
 
 
 def main():
@@ -36,30 +36,18 @@ def main():
 
     # Boucle principale du jeu
     running = True
-    direction = None
     vision_matrix = get_snake_vision_matrix(snake, green_apples, red_apple, GRID_SIZE)
     display_matrix(vision_matrix)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            # Gestion des touches
+            # Mode pas-à-pas : Avancer à l'étape suivante avec ESPACE
             elif event.type == pygame.KEYDOWN:
-                # Contrôles du serpent
-                if event.key == pygame.K_UP and direction != (1, 0):
-                    direction = (-1, 0)
-                elif event.key == pygame.K_DOWN and direction != (-1, 0):
-                    direction = (1, 0)
-                elif event.key == pygame.K_LEFT and direction != (0, 1):
-                    direction = (0, -1)
-                elif event.key == pygame.K_RIGHT and direction != (0, -1):
-                    direction = (0, 1)
-                elif event.key == pygame.K_ESCAPE:
-                    running = False
-
-                # Mode pas-à-pas : Avancer à l'étape suivante avec ESPACE
                 if step_by_step and event.key == pygame.K_SPACE:
                     next_step = True
+                elif event.key == pygame.K_ESCAPE:
+                    running = False
         draw_board(screen, snake, green_apples, red_apple)
         pygame.display.flip()
         # Si le mode pas-à-pas est activé, attendre l'appui sur ESPACE
@@ -67,9 +55,10 @@ def main():
             if not next_step:  # Tant que l'utilisateur n'appuie pas sur ESPACE, on ne fait rien
                 continue
             next_step = False  # Réinitialiser après avoir avancé d'une étape
-        if direction is not None:  # Commencer à jouer une fois une direction définie
+        result = choose_action()
+        if result is not None:  # Commencer à jouer une fois une direction définie
             # Déplacement du serpent
-            head = (snake[0][0] + direction[0], snake[0][1] + direction[1])
+            head = (snake[0][0] + result[0], snake[0][1] + result[1])
             snake.insert(0, head)
             vision_matrix = get_snake_vision_matrix(snake, green_apples, red_apple, GRID_SIZE)
             display_matrix(vision_matrix)
@@ -88,7 +77,7 @@ def main():
                     snake.pop()
                 else:
                     # print("Game Over!")
-                    green_apples, red_apple, snake, direction, running = reset_game()  # Réinitialise l'environnement
+                    green_apples, red_apple, snake, result, running = reset_game()  # Réinitialise l'environnement
                     continue
             else:
                 snake.pop()  # Enlève la dernière cellule si aucune pomme n'est mangée
@@ -104,7 +93,7 @@ def main():
                 # print(snake)
                 # print(f'Len:{len(snake)}')
 
-                green_apples, red_apple, snake, direction, running = reset_game()  # Réinitialise l'environnement
+                green_apples, red_apple, snake, result, running = reset_game()  # Réinitialise l'environnement
                 continue  # Redémarre le jeu
         pass
         clock.tick(8)  # Limite à 8 FPS

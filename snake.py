@@ -94,3 +94,25 @@ def display_matrix(matrix):
     for row in matrix:
         print("".join(row))  # Convertir chaque ligne en chaîne et l'afficher
     print()
+
+
+# Mappage des actions vers les directions
+ACTIONS = {
+    "UP": (-1, 0),
+    "DOWN": (1, 0),
+    "LEFT": (0, -1),
+    "RIGHT": (0, 1),
+}
+
+
+def choose_action():
+    """
+    Retourne une action aléatoire (UP, DOWN, LEFT, RIGHT).
+    À remplacer par un système basé sur la Q-table.
+    """
+    choice = random.choice(["UP", "DOWN", "LEFT", "RIGHT"])
+    print(choice)
+    dx, dy = ACTIONS[choice]
+    mouv = (dx, dy)
+    print(mouv)
+    return mouv
