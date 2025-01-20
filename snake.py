@@ -114,5 +114,4 @@ def choose_action():
     print(choice)
     dx, dy = ACTIONS[choice]
     mouv = (dx, dy)
-    print(mouv)
     return mouv

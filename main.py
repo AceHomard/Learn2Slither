@@ -1,7 +1,8 @@
 import pygame
-from settings import SCREEN_SIZE, GRID_SIZE
-from snake import spawn_snake, get_snake_vision_matrix, display_matrix, choose_action
+from settings import SCREEN_SIZE, GRID_SIZE, RGA, RRA, RD, RN, RTL
+from snake import spawn_snake, get_snake_vision_matrix, display_matrix
 from board import draw_board, spawn_apples, spawn_apple
+from agent import Agent
 
 
 def reset_game():
@@ -10,9 +11,15 @@ def reset_game():
     snake = spawn_snake(length=3, grid_size=GRID_SIZE, green_apples=green_apples, red_apple=red_apple)
     result = None  # Le jeu attend la première input
     running = True  # On continue le jeu
+    rewards = 0
     vision_matrix = get_snake_vision_matrix(snake, green_apples, red_apple, GRID_SIZE)
     display_matrix(vision_matrix)
-    return green_apples, red_apple, snake, result, running
+    return green_apples, red_apple, snake, result, running, rewards
+
+
+def update_rewards(rewards, bonus):
+    rewards += bonus
+    return rewards
 
 
 def main():
@@ -31,13 +38,15 @@ def main():
     clock = pygame.time.Clock()
 
     # Mode pas-à-pas
-    step_by_step = True  # Activer ou désactiver le mode pas-à-pas
+    step_by_step = False  # Activer ou désactiver le mode pas-à-pas
     next_step = False    # Variable pour avancer à l'étape suivante
 
     # Boucle principale du jeu
     running = True
     vision_matrix = get_snake_vision_matrix(snake, green_apples, red_apple, GRID_SIZE)
     display_matrix(vision_matrix)
+    rewards = 0
+    agent = Agent()
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -55,7 +64,7 @@ def main():
             if not next_step:  # Tant que l'utilisateur n'appuie pas sur ESPACE, on ne fait rien
                 continue
             next_step = False  # Réinitialiser après avoir avancé d'une étape
-        result = choose_action()
+        result = agent.choose_action(tuple(vision_matrix))
         if result is not None:  # Commencer à jouer une fois une direction définie
             # Déplacement du serpent
             head = (snake[0][0] + result[0], snake[0][1] + result[1])
@@ -68,7 +77,7 @@ def main():
                 green_apples.remove(head)
                 # Ajouter une nouvelle pomme verte
                 green_apples.append(spawn_apple(grid_size=GRID_SIZE, snake=[snake], occupied=green_apples + [red_apple]))
-
+                rewards = update_rewards(rewards, RGA)
             # Gérer la collision avec la pomme rouge
             elif head == red_apple:
                 red_apple = spawn_apple(grid_size=GRID_SIZE, snake=[snake], occupied=[green_apples])
@@ -77,9 +86,12 @@ def main():
                     snake.pop()
                 else:
                     # print("Game Over!")
-                    green_apples, red_apple, snake, result, running = reset_game()  # Réinitialise l'environnement
+                    rewards = update_rewards(rewards, RD)
+                    green_apples, red_apple, snake, result, running, rewards = reset_game()  # Réinitialise l'environnement
                     continue
+                rewards = update_rewards(rewards, RRA)
             else:
+                rewards = update_rewards(rewards, RN)
                 snake.pop()  # Enlève la dernière cellule si aucune pomme n'est mangée
 
             # Gérer les collisions avec les murs ou la queue
@@ -88,13 +100,16 @@ def main():
                 head[1] < 0 or head[1] >= GRID_SIZE or
                 head in snake[1:]
             ):
-                # print("Game Over!")
-                # print(head in snake[1:])
-                # print(snake)
-                # print(f'Len:{len(snake)}')
-
-                green_apples, red_apple, snake, result, running = reset_game()  # Réinitialise l'environnement
+                rewards = update_rewards(rewards, RD)
+                green_apples, red_apple, snake, result, running, rewards = reset_game()  # Réinitialise l'environnement
                 continue  # Redémarre le jeu
+            if len(snake) >= 10:
+                rewards = update_rewards(rewards, RTL)
+            # Mettre à jour la Q-table
+            new_state = tuple(get_snake_vision_matrix(snake, green_apples, red_apple, GRID_SIZE))
+            agent.update_q_value(result, rewards, new_state)
+            # Affiche le score actuel
+            print(f"Récompenses cumulées : {rewards}")
         pass
         clock.tick(8)  # Limite à 8 FPS
 

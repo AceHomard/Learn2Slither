@@ -27,9 +27,6 @@ def spawn_apple(grid_size=10, snake=[], occupied=[]):
 
     while True:
         apple = (random.randint(0, grid_size - 1), random.randint(0, grid_size - 1))
-        print(f"Apple: {apple}")
-        print(f"Snake: {snake}")
-        print(f"Occupied: {occupied}")
         if apple not in snake and apple not in occupied:
             return apple
 
