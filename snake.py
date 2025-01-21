@@ -53,7 +53,7 @@ def spawn_snake(length=3, grid_size=10, green_apples=[], red_apple=None):
             return snake
 
 
-def get_snake_vision_matrix(snake, green_apples, red_apple, grid_size):
+def get_snake_vision_matrix_human(snake, green_apples, red_apple, grid_size):
     """
     Retourne une matrice représentant la vision du serpent.
     """
@@ -87,6 +87,37 @@ def get_snake_vision_matrix(snake, green_apples, red_apple, grid_size):
     return matrix
 
 
+def get_snake_vision_matrix(snake, green_apples, red_apple, grid_size):
+    """
+    Retourne une matrice représentant la vision du serpent.
+    """
+    head_x, head_y = snake[0]  # Position de la tête du serpent
+
+    # Initialiser la matrice vide
+    vision = []  # Liste pour stocker la vision simplifiée
+
+    # Directions : UP, DOWN, LEFT, RIGHT
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+    for dx, dy in directions:
+        x, y = head_x, head_y
+        while 0 <= x < grid_size and 0 <= y < grid_size:  # Explorer tant qu'on est dans la grille
+            x += dx
+            y += dy
+            if not (0 <= x < grid_size and 0 <= y < grid_size):
+                vision.append("W")
+                break  # Sortie de la grille
+            if (x, y) in snake:
+                vision.append("S")
+            elif (x, y) in green_apples:
+                vision.append("G")
+            elif (x, y) == red_apple:
+                vision.append("R")
+            else:
+                vision.append("0")
+    return vision
+
+
 def display_matrix(matrix):
     """
     Affiche la matrice sous forme de chaîne de caractères.
@@ -94,24 +125,3 @@ def display_matrix(matrix):
     for row in matrix:
         print("".join(row))  # Convertir chaque ligne en chaîne et l'afficher
     print()
-
-
-# Mappage des actions vers les directions
-ACTIONS = {
-    "UP": (-1, 0),
-    "DOWN": (1, 0),
-    "LEFT": (0, -1),
-    "RIGHT": (0, 1),
-}
-
-
-def choose_action():
-    """
-    Retourne une action aléatoire (UP, DOWN, LEFT, RIGHT).
-    À remplacer par un système basé sur la Q-table.
-    """
-    choice = random.choice(["UP", "DOWN", "LEFT", "RIGHT"])
-    print(choice)
-    dx, dy = ACTIONS[choice]
-    mouv = (dx, dy)
-    return mouv
