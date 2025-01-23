@@ -1,4 +1,5 @@
 import random
+import torch
 
 
 def spawn_snake(length=3, grid_size=10, green_apples=[], red_apple=None):
@@ -87,14 +88,31 @@ def get_snake_vision_matrix_human(snake, green_apples, red_apple, grid_size):
     return matrix
 
 
-def get_snake_vision_matrix(snake, green_apples, red_apple, grid_size):
+OBJECT_MAPPING = {
+    "S": 1,  # Snake (danger)
+    "G": 2,  # Green apple (objectif)
+    "R": 3,  # Red apple (pénalité)
+    "0": 0,  # Case vide
+    "W": 4   # Mur (fin de la vision)
+}
+
+
+def get_snake_vision_vector(snake, green_apples, red_apple, grid_size):
     """
-    Retourne une matrice représentant la vision du serpent.
+    Retourne un vecteur PyTorch représentant la vision du serpent.
+
+    Args:
+        snake (list): Liste des coordonnées du serpent.
+        green_apples (list): Liste des coordonnées des pommes vertes.
+        red_apple (tuple): Coordonnées de la pomme rouge.
+        grid_size (int): Taille de la grille.
+
+    Returns:
+        torch.Tensor: Vecteur numérique représentant la vision.
     """
     head_x, head_y = snake[0]  # Position de la tête du serpent
 
-    # Initialiser la matrice vide
-    vision = []  # Liste pour stocker la vision simplifiée
+    vision = []  # Liste pour stocker la vision numérique
 
     # Directions : UP, DOWN, LEFT, RIGHT
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
@@ -105,17 +123,18 @@ def get_snake_vision_matrix(snake, green_apples, red_apple, grid_size):
             x += dx
             y += dy
             if not (0 <= x < grid_size and 0 <= y < grid_size):
-                vision.append("W")
+                vision.append(OBJECT_MAPPING["W"])
                 break  # Sortie de la grille
             if (x, y) in snake:
-                vision.append("S")
+                vision.append(OBJECT_MAPPING["S"])
             elif (x, y) in green_apples:
-                vision.append("G")
+                vision.append(OBJECT_MAPPING["G"])
             elif (x, y) == red_apple:
-                vision.append("R")
+                vision.append(OBJECT_MAPPING["R"])
             else:
-                vision.append("0")
-    return vision
+                vision.append(OBJECT_MAPPING["0"])
+    # Convertir la liste en vecteur PyTorch
+    return torch.tensor(vision, dtype=torch.float32)
 
 
 def display_matrix(matrix):

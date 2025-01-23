@@ -11,6 +11,7 @@ class Agent:
         self.q_table = {}  # Initialisation de la Q-table comme un dictionnaire
 
     def choose_action(self, state):
+        print(state)
         # Exploration : Choisir une action aléatoire
         if np.random.uniform(0, 1) < self.epsilon:
             return random.choice(list(ACTIONS.keys()))
