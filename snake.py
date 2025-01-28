@@ -54,7 +54,50 @@ def spawn_snake(length=3, grid_size=10, green_apples=[], red_apple=None):
             return snake
 
 
-def get_snake_vision_matrix_human(snake, green_apples, red_apple, grid_size):
+def get_snake_vision_simple(snake, green_apples, red_apple, grid_size):
+    """
+    Retourne une vision simplifiée des 4 directions autour du serpent.
+    Les directions sans obstacles ('S', 'G', 'R') sont considérées comme neutres (0), 
+    sauf si elles sont proches du mur à 1 case de distance.
+    """
+    head_x, head_y = snake[0]  # Position de la tête du serpent
+
+    # Directions : UP, DOWN, LEFT, RIGHT
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    vision = []
+
+    for dx, dy in directions:
+        x, y = head_x, head_y
+        found = False  # Flag pour savoir si on a trouvé un obstacle
+
+        while 0 <= x < grid_size and 0 <= y < grid_size:  # Explorer tant qu'on est dans la grille
+            x += dx
+            y += dy
+
+            # Vérification des obstacles
+            if (x, y) in snake:
+                vision.append("W")  # Corps du serpent
+                found = True
+                break
+            elif (x, y) in green_apples:
+                vision.append("G")  # Pomme verte
+                found = True
+                break
+            elif (x, y) == red_apple:
+                vision.append("R")  # Pomme rouge
+                found = True
+                break
+
+        if not found:  # Si aucun obstacle n'a été trouvé
+            # Vérifier si la tête est proche du mur à 1 case
+            if head_x + dx < 0 or head_x + dx >= grid_size or head_y + dy < 0 or head_y + dy >= grid_size:
+                vision.append("W")  # Si proche du mur, marquer comme 'W'
+            else:
+                vision.append("0")  # Sinon direction neutre
+    return vision
+
+
+def get_snake_vision_matrix(snake, green_apples, red_apple, grid_size):
     """
     Retourne une matrice représentant la vision du serpent.
     """
@@ -86,15 +129,6 @@ def get_snake_vision_matrix_human(snake, green_apples, red_apple, grid_size):
                 matrix[x+1][y+1] = "0"
         matrix[x+1][y+1] = "W"
     return matrix
-
-
-OBJECT_MAPPING = {
-    "S": 1,  # Snake (danger)
-    "G": 2,  # Green apple (objectif)
-    "R": 3,  # Red apple (pénalité)
-    "0": 0,  # Case vide
-    "W": 4   # Mur (fin de la vision)
-}
 
 
 def get_snake_vision_vector(snake, green_apples, red_apple, grid_size):

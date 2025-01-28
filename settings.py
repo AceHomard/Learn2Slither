@@ -3,10 +3,10 @@ CELL_SIZE = 60
 GRID_SIZE = 10
 SCREEN_SIZE = CELL_SIZE * GRID_SIZE
 
-RGA = 100
+RGA = 50
 RRA = -5
-RD = -20
-RN = -0.05
+RD = -100
+RN = -0.1
 RTL = 100
 
 # Mappage des actions vers les directions
@@ -17,9 +17,18 @@ ACTIONS = {
     "RIGHT": (0, 1),
 }
 
-ACTION_TO_INDEX = {
-    "UP": 0,
-    "DOWN": 1,
-    "LEFT": 2,
-    "RIGHT": 3,
+OBJECT_MAPPING = {
+    "W": 4,  # Mur
+    "G": 2,  # Pomme verte
+    "R": 3,  # Pomme rouge
+    "S": 1,  # Corps du serpent
+    "0": 0   # Case vide
+}
+
+# Actions opposées
+OP_DIR = {
+    "UP": "DOWN",
+    "DOWN": "UP",
+    "LEFT": "RIGHT",
+    "RIGHT": "LEFT",
 }
