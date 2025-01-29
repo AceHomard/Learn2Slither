@@ -1,7 +1,6 @@
 import random
 import numpy as np
 from settings import ACTIONS, OBJECT_MAPPING, OP_DIR
-# lent > 40
 
 
 class Agent:
@@ -9,7 +8,7 @@ class Agent:
         self.alpha = alpha  # Taux d'apprentissage
         self.gamma = gamma  # Facteur d'actualisation
         self.epsilon = epsilon  # Epsilon diminue à chaque épisode
-        self.q_table = np.zeros((256, len(ACTIONS)))  # Q-table en numpy
+        self.q_table = np.zeros((4, 4, 4, 4, len(ACTIONS)))  # 4 directions, 4 types d'objets, 4 actions
         self.last_action = None  # Dernière action effectuée
 
     def show_qtable(self):
@@ -17,18 +16,15 @@ class Agent:
 
     def decay_epsilon(self):
         # Réduit epsilon après chaque épisode
-        self.epsilon = max(0.01, self.epsilon * 0.98)
+        self.epsilon = max(0.01, self.epsilon * 0.99)
 
-    def get_reduced_state(self, snake_vision_matrix):
+    def get_state(self, snake_vision_matrix):
         """
-        Encode la vision du serpent dans un état unique.
+        Retourne l'état sous forme de vecteur numpy.
         """
-        state = [OBJECT_MAPPING[obj] for obj in snake_vision_matrix]
-        # Calcul de l'index de l'état en base 4
-        state_index = sum(val * (4 ** idx) for idx, val in enumerate(state))
-
-        # Assurer que l'index reste dans la plage [0, 255]
-        return state_index
+        tmp = np.array([OBJECT_MAPPING[obj] for obj in snake_vision_matrix])
+        print(tmp) # [0 0 3 3]
+        return tmp
 
     def choose_action(self, state):
         # Exploration : Choisir une action aléatoire (en évitant l'action opposée)
@@ -45,11 +41,11 @@ class Agent:
         return action
 
     def update_q_value(self, state, action, reward, next_state, done):
-        # Trouver l'indice de l'action
-        action_idx = list(ACTIONS.keys()).index(action)  # Convertir l'action en son indice
-        best_next_q = 0 if done else np.max(self.q_table[next_state])
-
-        # Mise à jour de la Q-table pour l'état et l'action spécifiés
-        self.q_table[state, action_idx] += self.alpha * (
-            reward + self.gamma * best_next_q - self.q_table[state, action_idx]
-        )
+        action_idx = list(ACTIONS.keys()).index(action)
+        if done:
+            self.q_table[state][action_idx] += self.alpha * (reward - self.q_table[state][action_idx])
+        else:
+            best_next_q = np.max(self.q_table[next_state])
+            self.q_table[state][action_idx] += self.alpha * (
+                reward + self.gamma * best_next_q - self.q_table[state][action_idx]
+            )

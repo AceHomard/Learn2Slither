@@ -7,7 +7,6 @@ RGA = 50
 RRA = -5
 RD = -100
 RN = -0.1
-RTL = 100
 
 # Mappage des actions vers les directions
 ACTIONS = {
@@ -18,11 +17,10 @@ ACTIONS = {
 }
 
 OBJECT_MAPPING = {
-    "W": 4,  # Mur
-    "G": 2,  # Pomme verte
-    "R": 3,  # Pomme rouge
-    "S": 1,  # Corps du serpent
-    "0": 0   # Case vide
+    "W": 0,  # Mur ou corps du serpent
+    "G": 1,  # Pomme verte
+    "R": 2,  # Pomme rouge
+    "0": 3   # Case vide
 }
 
 # Actions opposées

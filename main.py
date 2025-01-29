@@ -3,7 +3,8 @@ from settings import SCREEN_SIZE, GRID_SIZE, RGA, RRA, RD, RN, RTL, ACTIONS
 from snake import spawn_snake, get_snake_vision_simple, display_matrix
 from board import draw_board, spawn_apples, spawn_apple
 from agentqtable import Agent
-import random
+import matplotlib.pyplot as plt
+import pandas as pd
 
 
 def reset_game():
@@ -17,6 +18,28 @@ def reset_game():
     vision = 0
     vision_snake = get_snake_vision_simple(snake, green_apples, red_apple, GRID_SIZE)
     return green_apples, red_apple, snake, running, reward, mouv, vision_snake, result, vision
+
+
+def graph(snake_sizes):
+    snake_sizes_series = pd.Series(snake_sizes)
+
+    # Calcul d'une moyenne mobile sur 100 épisodes pour lisser les fluctuations
+    rolling_mean = snake_sizes_series.rolling(window=100).mean()
+
+    # Création du graphique
+    plt.figure(figsize=(10, 5))
+    plt.plot(snake_sizes, alpha=0.3, label="Taille brute du serpent", color="blue")  # Valeurs brutes en semi-transparent
+    plt.plot(rolling_mean, label="Moyenne mobile (100 épisodes)", color="red", linewidth=2)  # Moyenne mobile en rouge
+
+    # Ajout des labels et titres
+    plt.xlabel("Épisode")
+    plt.ylabel("Taille moyenne du serpent")
+    plt.title("Évolution de la taille du serpent au fil des épisodes (lissée)")
+    plt.legend()
+    plt.grid(True, linestyle="--", alpha=0.5)
+
+    # Affichage du graphique
+    plt.show()
 
 
 def main():
@@ -33,8 +56,8 @@ def main():
     # Mode pas-à-pas
     step_by_step = False
     next_step = False
-
-    num_episodes = 500
+    snake_sizes = []
+    num_episodes = 2000
     episode_counter = 0
     vision_snake = get_snake_vision_simple(snake, green_apples, red_apple, GRID_SIZE)
     agent = Agent()
@@ -87,6 +110,7 @@ def main():
                     else:
                         reward = RD
                         agent.update_q_value(vision, result, reward, vision, True)
+                        snake_sizes.append(len(snake))
                         green_apples, red_apple, snake, running, reward, mouv, vision_snake, result, vision = reset_game()
                         break
                     reward = RRA
@@ -98,6 +122,7 @@ def main():
                 ):
                     reward = RD
                     agent.update_q_value(vision, result, reward, vision, True)
+                    snake_sizes.append(len(snake))
                     green_apples, red_apple, snake, running, reward, mouv, vision_snake, result, vision = reset_game()
                     break
 
@@ -105,17 +130,12 @@ def main():
                     reward = RN
                     snake.pop()
 
-                if len(snake) >= 10:
-                    reward += RTL
-
                 vision_snake_new = get_snake_vision_simple(snake, green_apples, red_apple, GRID_SIZE)
-                # print(f'vision: {vision_snake} | mouvement: {result} | result: {vision_snake_new} | rewards: {reward}')
                 agent.update_q_value(vision, result, reward, agent.get_reduced_state(vision_snake_new), False)
                 vision_snake = vision_snake_new
-                if episode_counter == 400:
-                    step_by_step = True
 
     pygame.quit()
+    graph(snake_sizes)
 
 
 if __name__ == "__main__":

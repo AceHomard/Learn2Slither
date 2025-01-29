@@ -131,44 +131,44 @@ def get_snake_vision_matrix(snake, green_apples, red_apple, grid_size):
     return matrix
 
 
-def get_snake_vision_vector(snake, green_apples, red_apple, grid_size):
-    """
-    Retourne un vecteur PyTorch représentant la vision du serpent.
+# def get_snake_vision_vector(snake, green_apples, red_apple, grid_size):
+#     """
+#     Retourne un vecteur PyTorch représentant la vision du serpent.
 
-    Args:
-        snake (list): Liste des coordonnées du serpent.
-        green_apples (list): Liste des coordonnées des pommes vertes.
-        red_apple (tuple): Coordonnées de la pomme rouge.
-        grid_size (int): Taille de la grille.
+#     Args:
+#         snake (list): Liste des coordonnées du serpent.
+#         green_apples (list): Liste des coordonnées des pommes vertes.
+#         red_apple (tuple): Coordonnées de la pomme rouge.
+#         grid_size (int): Taille de la grille.
 
-    Returns:
-        torch.Tensor: Vecteur numérique représentant la vision.
-    """
-    head_x, head_y = snake[0]  # Position de la tête du serpent
+#     Returns:
+#         torch.Tensor: Vecteur numérique représentant la vision.
+#     """
+#     head_x, head_y = snake[0]  # Position de la tête du serpent
 
-    vision = []  # Liste pour stocker la vision numérique
+#     vision = []  # Liste pour stocker la vision numérique
 
-    # Directions : UP, DOWN, LEFT, RIGHT
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+#     # Directions : UP, DOWN, LEFT, RIGHT
+#     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
-    for dx, dy in directions:
-        x, y = head_x, head_y
-        while 0 <= x < grid_size and 0 <= y < grid_size:  # Explorer tant qu'on est dans la grille
-            x += dx
-            y += dy
-            if not (0 <= x < grid_size and 0 <= y < grid_size):
-                vision.append(OBJECT_MAPPING["W"])
-                break  # Sortie de la grille
-            if (x, y) in snake:
-                vision.append(OBJECT_MAPPING["S"])
-            elif (x, y) in green_apples:
-                vision.append(OBJECT_MAPPING["G"])
-            elif (x, y) == red_apple:
-                vision.append(OBJECT_MAPPING["R"])
-            else:
-                vision.append(OBJECT_MAPPING["0"])
-    # Convertir la liste en vecteur PyTorch
-    return torch.tensor(vision, dtype=torch.float32)
+#     for dx, dy in directions:
+#         x, y = head_x, head_y
+#         while 0 <= x < grid_size and 0 <= y < grid_size:  # Explorer tant qu'on est dans la grille
+#             x += dx
+#             y += dy
+#             if not (0 <= x < grid_size and 0 <= y < grid_size):
+#                 vision.append(OBJECT_MAPPING["W"])
+#                 break  # Sortie de la grille
+#             if (x, y) in snake:
+#                 vision.append(OBJECT_MAPPING["S"])
+#             elif (x, y) in green_apples:
+#                 vision.append(OBJECT_MAPPING["G"])
+#             elif (x, y) == red_apple:
+#                 vision.append(OBJECT_MAPPING["R"])
+#             else:
+#                 vision.append(OBJECT_MAPPING["0"])
+#     # Convertir la liste en vecteur PyTorch
+#     return torch.tensor(vision, dtype=torch.float32)
 
 
 def display_matrix(matrix):
