@@ -1,5 +1,5 @@
 import pygame
-from settings import SCREEN_SIZE, GRID_SIZE, RGA, RRA, RD, RN, RTL, ACTIONS
+from settings import SCREEN_SIZE, GRID_SIZE, RGA, RRA, RD, RN, ACTIONS
 from snake import spawn_snake, get_snake_vision_simple, display_matrix
 from board import draw_board, spawn_apples, spawn_apple
 from agentqtable import Agent
@@ -57,7 +57,7 @@ def main():
     step_by_step = False
     next_step = False
     snake_sizes = []
-    num_episodes = 2000
+    num_episodes = 10000
     episode_counter = 0
     vision_snake = get_snake_vision_simple(snake, green_apples, red_apple, GRID_SIZE)
     agent = Agent()
@@ -135,6 +135,7 @@ def main():
                 vision_snake = vision_snake_new
 
     pygame.quit()
+    print(max(snake_sizes))
     graph(snake_sizes)
 
 

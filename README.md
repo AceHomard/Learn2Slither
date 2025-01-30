@@ -96,3 +96,7 @@ Modules nécessaires :
 
     Implémenter un système basé sur un réseau de neurones pour remplacer la Q-table.
     Ajouter des fonctionnalités avancées comme des niveaux de difficulté ou un plateau plus grand.
+
+
+ToDo:
+    Vous pourriez ajouter une option pour désactiver l'exploration (par exemple, en fixant ϵ=0ϵ=0)  lorsque l'agent est en mode "exploitation sans apprentissage".

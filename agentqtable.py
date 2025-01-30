@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from settings import ACTIONS, OBJECT_MAPPING, OP_DIR
-# lent > 40
+import pickle
 
 
 class Agent:
@@ -44,12 +44,24 @@ class Agent:
         self.last_action = action
         return action
 
-    def update_q_value(self, state, action, reward, next_state, done):
-        # Trouver l'indice de l'action
-        action_idx = list(ACTIONS.keys()).index(action)  # Convertir l'action en son indice
-        best_next_q = 0 if done else np.max(self.q_table[next_state])
+    def update_q_value(self, state, action, reward, next_state, done, learning=True):
+        if learning:
+            action_idx = list(ACTIONS.keys()).index(action)
+            best_next_q = 0 if done else np.max(self.q_table[next_state])
+            self.q_table[state, action_idx] += self.alpha * (
+                reward + self.gamma * best_next_q - self.q_table[state, action_idx]
+            )
 
-        # Mise à jour de la Q-table pour l'état et l'action spécifiés
-        self.q_table[state, action_idx] += self.alpha * (
-            reward + self.gamma * best_next_q - self.q_table[state, action_idx]
-        )
+    def export_model(self, filename):
+        """
+        Exporte la Q-table dans un fichier.
+        """
+        with open(filename, 'wb') as f:
+            pickle.dump(self.q_table, f)
+
+    def import_model(self, filename):
+        """
+        Importe la Q-table à partir d'un fichier.
+        """
+        with open(filename, 'rb') as f:
+            self.q_table = pickle.load(f)
