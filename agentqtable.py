@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from settings import ACTIONS, OBJECT_MAPPING, OP_DIR
-import pickle
+import os
 
 
 class Agent:
@@ -14,6 +14,10 @@ class Agent:
 
     def show_qtable(self):
         return self.q_table
+
+    def no_epsilon(self):
+        # Réduit epsilon
+        self.epsilon = 0.01
 
     def decay_epsilon(self):
         # Réduit epsilon après chaque épisode
@@ -54,14 +58,19 @@ class Agent:
 
     def export_model(self, filename):
         """
-        Exporte la Q-table dans un fichier.
+        Exporte la Q-table sous forme de fichier .npy
         """
-        with open(filename, 'wb') as f:
-            pickle.dump(self.q_table, f)
+        os.makedirs("models", exist_ok=True)  # Crée le dossier models si inexistant
+        np.save(f'models/{filename}.npy', self.q_table)  # Sauvegarde sous format NumPy
+        print(f"✅ Modèle sauvegardé dans models/{filename}.npy")
 
     def import_model(self, filename):
         """
-        Importe la Q-table à partir d'un fichier.
+        Importe la Q-table depuis un fichier .npy
         """
-        with open(filename, 'rb') as f:
-            self.q_table = pickle.load(f)
+        try:
+            self.q_table = np.load(filename)  # Charge le fichier NumPy
+            print(f"✅ Modèle chargé depuis {filename}")
+        except FileNotFoundError:
+            print(f"⚠️ Fichier {filename} introuvable, initialisation de la Q-table vide.")
+            self.q_table = np.zeros((256, len(ACTIONS)))  # Réinitialisation

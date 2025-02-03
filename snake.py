@@ -1,5 +1,4 @@
 import random
-import torch
 
 
 def spawn_snake(length=3, grid_size=10, green_apples=[], red_apple=None):

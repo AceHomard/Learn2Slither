@@ -54,6 +54,7 @@ def parse_args():
     parser.add_argument("-sessions", type=int, default=250, help="Nombre d'épisodes d'entraînement")
     parser.add_argument("-dontlearn", action="store_true", help="Désactiver l'apprentissage (mode validation)")
     parser.add_argument("-step-by-step", action="store_true", help="Mode pas-à-pas (appuyer sur espace pour avancer)")
+    parser.add_argument("-noepsil", choices=["on", "off"], default="off", help="Empêcher l'Exploration")
 
     return parser.parse_args()
 
@@ -76,9 +77,9 @@ def play_step(agent, snake, green_apples, red_apple):
     head = (snake[0][0] + dx, snake[0][1] + dy)
 
     if head in snake[1:] or head[0] < 0 or head[0] >= GRID_SIZE or head[1] < 0 or head[1] >= GRID_SIZE:
-        return vision, RD, False  
+        return vision, RD, False
 
-    reward = RN  
+    reward = RN
     snake.insert(0, head)
     if head in green_apples:
         green_apples.remove(head)
@@ -91,7 +92,7 @@ def play_step(agent, snake, green_apples, red_apple):
             snake.pop()
             reward = RRA
         else:
-            return vision, RD, False  
+            return vision, RD, False
 
     else:
         snake.pop()
@@ -99,10 +100,11 @@ def play_step(agent, snake, green_apples, red_apple):
     return vision, reward, True
 
 
-def train_snake(agent, num_episodes=1000, visual=True, learn=True, step_by_step=False):
+def train_snake(agent, num_episodes=1000, visual=True, learn=True, step_by_step=False, noepsil=False):
     """ Boucle d'entraînement """
     snake_sizes = []
-
+    if noepsil:
+        agent.no_epsilon()
     for episode in range(num_episodes):
         agent.decay_epsilon()
         green_apples, red_apple, snake, running, reward, _, vision_snake, _, _ = reset_game()
@@ -111,7 +113,6 @@ def train_snake(agent, num_episodes=1000, visual=True, learn=True, step_by_step=
             if visual:
                 draw_board(screen, snake, green_apples, red_apple)
                 pygame.display.flip()
-
             if step_by_step:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -143,27 +144,26 @@ def main():
         pygame.display.set_caption("Snake 10x10")
 
     agent = Agent()
-
     # Chargement d'un modèle si spécifié
     if args.load:
         if os.path.exists(args.load):
-            agent.load_model(args.load)
+            agent.import_model(args.load)
             print(f"Modèle chargé depuis {args.load}")
         else:
             print(f"⚠️ Fichier {args.load} introuvable !")
 
     # Lancement de l'entraînement
-    snake_sizes = train_snake(agent, num_episodes=args.sessions, 
-                              visual=(args.visual == "on"), 
-                              learn=not args.dontlearn, 
-                              step_by_step=args.step_by_step)
-
+    snake_sizes = train_snake(agent, num_episodes=args.sessions,
+                              visual=(args.visual == "on"),
+                              learn=not args.dontlearn,
+                              step_by_step=args.step_by_step,
+                              noepsil=(args.noepsil == "on"))
     if args.visual == "on":
         pygame.quit()
 
     # Sauvegarde des résultats
-    save_results("snake_results.csv", snake_sizes)
-
+    # save_results("snake_results.csv", snake_sizes)
+    agent.export_model(f'{args.sessions}sess')
     print("Taille max atteinte :", max(snake_sizes))
     graph(snake_sizes)
 
