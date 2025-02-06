@@ -3,7 +3,8 @@ import random
 
 def spawn_snake(length=3, grid_size=10, green_apples=[], red_apple=None):
     """
-    Génère un serpent aléatoire en partant de la tête et en construisant le corps.
+        Génère un serpent aléatoire en partant
+        de la tête et en construisant le corps.
     """
     while True:
         # Choisir une position de départ aléatoire pour la tête
@@ -56,8 +57,9 @@ def spawn_snake(length=3, grid_size=10, green_apples=[], red_apple=None):
 def get_snake_vision_simple(snake, green_apples, red_apple, grid_size):
     """
     Retourne une vision simplifiée des 4 directions autour du serpent.
-    Les directions sans obstacles ('S', 'G', 'R') sont considérées comme neutres (0), 
-    sauf si elles sont proches du mur à 1 case de distance.
+    Les directions sans obstacles ('S', 'G', 'R')
+    sont considérées comme neutres (0), sauf si elles sont
+    proches du mur à 1 case de distance.
     """
     head_x, head_y = snake[0]  # Position de la tête du serpent
 
@@ -69,7 +71,7 @@ def get_snake_vision_simple(snake, green_apples, red_apple, grid_size):
         x, y = head_x, head_y
         found = False  # Flag pour savoir si on a trouvé un obstacle
 
-        while 0 <= x < grid_size and 0 <= y < grid_size:  # Explorer tant qu'on est dans la grille
+        while 0 <= x < grid_size and 0 <= y < grid_size:
             x += dx
             y += dy
 
@@ -89,7 +91,8 @@ def get_snake_vision_simple(snake, green_apples, red_apple, grid_size):
 
         if not found:  # Si aucun obstacle n'a été trouvé
             # Vérifier si la tête est proche du mur à 1 case
-            if head_x + dx < 0 or head_x + dx >= grid_size or head_y + dy < 0 or head_y + dy >= grid_size:
+            if head_x + dx < 0 or head_x + dx >= grid_size or head_y + dy < 0 \
+                    or head_y + dy >= grid_size:
                 vision.append("W")  # Si proche du mur, marquer comme 'W'
             else:
                 vision.append("0")  # Sinon direction neutre
@@ -103,7 +106,8 @@ def get_snake_vision_matrix(snake, green_apples, red_apple, grid_size):
     head_x, head_y = snake[0]  # Position de la tête du serpent
 
     # Initialiser la matrice vide
-    matrix = [[" " for _ in range(grid_size + 2)] for _ in range(grid_size + 2)]
+    matrix = [[" " for _ in range(grid_size + 2)]
+              for _ in range(grid_size + 2)]
 
     # Placer la tête
     matrix[head_x+1][head_y+1] = "H"
@@ -113,7 +117,7 @@ def get_snake_vision_matrix(snake, green_apples, red_apple, grid_size):
 
     for dx, dy in directions:
         x, y = head_x, head_y
-        while 0 <= x < grid_size and 0 <= y < grid_size:  # Explorer tant qu'on est dans la grille
+        while 0 <= x < grid_size and 0 <= y < grid_size:
             x += dx
             y += dy
             if not (0 <= x < grid_size and 0 <= y < grid_size):
@@ -128,46 +132,6 @@ def get_snake_vision_matrix(snake, green_apples, red_apple, grid_size):
                 matrix[x+1][y+1] = "0"
         matrix[x+1][y+1] = "W"
     return matrix
-
-
-# def get_snake_vision_vector(snake, green_apples, red_apple, grid_size):
-#     """
-#     Retourne un vecteur PyTorch représentant la vision du serpent.
-
-#     Args:
-#         snake (list): Liste des coordonnées du serpent.
-#         green_apples (list): Liste des coordonnées des pommes vertes.
-#         red_apple (tuple): Coordonnées de la pomme rouge.
-#         grid_size (int): Taille de la grille.
-
-#     Returns:
-#         torch.Tensor: Vecteur numérique représentant la vision.
-#     """
-#     head_x, head_y = snake[0]  # Position de la tête du serpent
-
-#     vision = []  # Liste pour stocker la vision numérique
-
-#     # Directions : UP, DOWN, LEFT, RIGHT
-#     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-
-#     for dx, dy in directions:
-#         x, y = head_x, head_y
-#         while 0 <= x < grid_size and 0 <= y < grid_size:  # Explorer tant qu'on est dans la grille
-#             x += dx
-#             y += dy
-#             if not (0 <= x < grid_size and 0 <= y < grid_size):
-#                 vision.append(OBJECT_MAPPING["W"])
-#                 break  # Sortie de la grille
-#             if (x, y) in snake:
-#                 vision.append(OBJECT_MAPPING["S"])
-#             elif (x, y) in green_apples:
-#                 vision.append(OBJECT_MAPPING["G"])
-#             elif (x, y) == red_apple:
-#                 vision.append(OBJECT_MAPPING["R"])
-#             else:
-#                 vision.append(OBJECT_MAPPING["0"])
-#     # Convertir la liste en vecteur PyTorch
-#     return torch.tensor(vision, dtype=torch.float32)
 
 
 def display_matrix(matrix):

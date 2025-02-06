@@ -5,12 +5,15 @@ import random
 
 def spawn_apples(grid_size=10, snake=[], num_apples=1, occupied=[]):
     """
-    Génère plusieurs positions aléatoires pour des pommes sans overlap avec le serpent ou entre elles.
+        Génère plusieurs positions aléatoires pour des pommes
+        sans overlap avec le serpent ou entre elles.
     """
     apples = []
     while len(apples) < num_apples:
-        apple = (random.randint(0, grid_size - 1), random.randint(0, grid_size - 1))
-        if apple not in snake and apple not in apples and apple not in occupied:
+        apple = (random.randint(0, grid_size - 1),
+                 random.randint(0, grid_size - 1))
+        if apple not in snake and apple not in apples \
+                and apple not in occupied:
             apples.append(apple)
     return apples
 
@@ -26,7 +29,8 @@ def spawn_apple(grid_size=10, snake=[], occupied=[]):
         occupied = [pos for segment in occupied for pos in segment]
 
     while True:
-        apple = (random.randint(0, grid_size - 1), random.randint(0, grid_size - 1))
+        apple = (random.randint(0, grid_size - 1),
+                 random.randint(0, grid_size - 1))
         if apple not in snake and apple not in occupied:
             return apple
 
@@ -43,14 +47,16 @@ def draw_board(screen, snake, green_apples, red_apple):
     draw_grid(screen)
     # Dessiner le serpent
     for index, segment in enumerate(snake):
-        rect = pygame.Rect(segment[1] * CELL_SIZE, segment[0] * CELL_SIZE, CELL_SIZE, CELL_SIZE)
-        if index == 0:  # La tête
-            pygame.draw.rect(screen, "darkblue", rect)  # Couleur différente pour la tête
-        else:  # Le corps
+        rect = pygame.Rect(segment[1] * CELL_SIZE, segment[0] *
+                           CELL_SIZE, CELL_SIZE, CELL_SIZE)
+        if index == 0:
+            pygame.draw.rect(screen, "darkblue", rect)
+        else:
             pygame.draw.rect(screen, 'blue', rect)
-    # Dessiner les pommes vertes
     for green_apple in green_apples:
-        green_rect = pygame.Rect(green_apple[1] * CELL_SIZE, green_apple[0] * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+        green_rect = pygame.Rect(green_apple[1] * CELL_SIZE, green_apple[0] *
+                                 CELL_SIZE, CELL_SIZE, CELL_SIZE)
         pygame.draw.rect(screen, 'green', green_rect)
-    red_rect = pygame.Rect(red_apple[1] * CELL_SIZE, red_apple[0] * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+    red_rect = pygame.Rect(red_apple[1] * CELL_SIZE, red_apple[0] *
+                           CELL_SIZE, CELL_SIZE, CELL_SIZE)
     pygame.draw.rect(screen, 'red', red_rect)

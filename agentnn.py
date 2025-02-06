@@ -25,7 +25,8 @@ class DQN(nn.Module):
             x (torch.Tensor): Tenseur représentant l'état (entrée).
 
         Returns:
-            torch.Tensor: Tenseur représentant les valeurs Q pour chaque action.
+            torch.Tensor: Tenseur représentant les valeurs Q
+            pour chaque action.
         """
         x = torch.relu(self.fc1(x))
         x = torch.relu(self.fc2(x))
