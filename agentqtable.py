@@ -17,11 +17,11 @@ class Agent:
 
     def no_epsilon(self):
         # Réduit epsilon
-        self.epsilon = 0.01
+        self.epsilon = 0.001
 
     def decay_epsilon(self):
         # Réduit epsilon après chaque épisode
-        self.epsilon = max(0.01, self.epsilon * 0.98)
+        self.epsilon = max(0.001, self.epsilon * 0.98)
 
     def get_reduced_state(self, snake_vision_matrix):
         """

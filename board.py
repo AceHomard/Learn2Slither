@@ -1,5 +1,5 @@
 import pygame
-from settings import SCREEN_SIZE, CELL_SIZE
+from settings import CELL_SIZE
 import random
 
 
@@ -35,16 +35,16 @@ def spawn_apple(grid_size=10, snake=[], occupied=[]):
             return apple
 
 
-def draw_grid(screen):
-    for x in range(0, SCREEN_SIZE, CELL_SIZE):
-        for y in range(0, SCREEN_SIZE, CELL_SIZE):
+def draw_grid(screen, gridsize):
+    for x in range(0, CELL_SIZE * gridsize, CELL_SIZE):
+        for y in range(0, CELL_SIZE * gridsize, CELL_SIZE):
             rect = pygame.Rect(x, y, CELL_SIZE, CELL_SIZE)
             pygame.draw.rect(screen, 'white', rect, 1)
 
 
-def draw_board(screen, snake, green_apples, red_apple):
+def draw_board(screen, snake, green_apples, red_apple, gridsize):
     screen.fill("black")
-    draw_grid(screen)
+    draw_grid(screen, gridsize)
     # Dessiner le serpent
     for index, segment in enumerate(snake):
         rect = pygame.Rect(segment[1] * CELL_SIZE, segment[0] *

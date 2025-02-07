@@ -1,11 +1,9 @@
 # Paramètres du jeu
 CELL_SIZE = 60
-GRID_SIZE = 10
-SCREEN_SIZE = CELL_SIZE * GRID_SIZE
 
 RGA = 50
-RRA = -5
-RD = -100
+RRA = -10
+RD = -50
 RN = -0.1
 
 # Mappage des actions vers les directions

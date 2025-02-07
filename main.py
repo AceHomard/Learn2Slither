@@ -1,7 +1,7 @@
 import pygame
 import argparse
 import os
-from settings import SCREEN_SIZE, GRID_SIZE, RGA, RRA, RD, RN, ACTIONS
+from settings import CELL_SIZE, RGA, RRA, RD, RN, ACTIONS
 from snake import get_snake_vision_simple, spawn_snake, \
     get_snake_vision_matrix, display_matrix
 from board import draw_board, spawn_apple, spawn_apples
@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-def reset_game():
-    green_apples = spawn_apples(GRID_SIZE, num_apples=2)
-    red_apple = spawn_apple(GRID_SIZE, snake=[green_apples])
-    snake = spawn_snake(length=3, grid_size=GRID_SIZE,
+def reset_game(gridsize):
+    green_apples = spawn_apples(gridsize, num_apples=2)
+    red_apple = spawn_apple(gridsize, snake=[green_apples])
+    snake = spawn_snake(length=3, grid_size=gridsize,
                         green_apples=green_apples, red_apple=red_apple)
     running = True
     reward = 0
@@ -73,32 +73,33 @@ def parse_args():
                         help="Empêcher l'Exploration")
     parser.add_argument("-displayterm", choices=["on", "off"], default="off",
                         help="Affichage terminal")
-
+    parser.add_argument("-grid", type=int, default=10,
+                        help="Size du plateau")
     return parser.parse_args()
 
 
-def play_step(agent, snake, green_apples, red_apple, displayterm):
+def play_step(agent, snake, green_apples, red_apple, displayterm, gridsize):
     """ Exécute une action et met à jour l'environnement """
     vision = agent.get_reduced_state(
-        get_snake_vision_simple(snake, green_apples, red_apple, GRID_SIZE))
+        get_snake_vision_simple(snake, green_apples, red_apple, gridsize))
     action = agent.choose_action(vision)
 
     dx, dy = ACTIONS[action]
     head = (snake[0][0] + dx, snake[0][1] + dy)
 
-    if head in snake[1:] or head[0] < 0 or head[0] >= GRID_SIZE\
-            or head[1] < 0 or head[1] >= GRID_SIZE:
+    if head in snake[1:] or head[0] < 0 or head[0] >= gridsize\
+            or head[1] < 0 or head[1] >= gridsize:
         return vision, RD, False, red_apple
 
     reward = RN
     snake.insert(0, head)
     if head in green_apples:
         green_apples.remove(head)
-        green_apples.append(spawn_apple(GRID_SIZE, snake=[snake],
+        green_apples.append(spawn_apple(gridsize, snake=[snake],
                                         occupied=green_apples + [red_apple]))
         reward = RGA
     elif head == red_apple:
-        red_apple = spawn_apple(GRID_SIZE, snake=[snake],
+        red_apple = spawn_apple(gridsize, snake=[snake],
                                 occupied=[green_apples])
         if len(snake) > 2:
             snake.pop()
@@ -111,12 +112,12 @@ def play_step(agent, snake, green_apples, red_apple, displayterm):
         snake.pop()
     if displayterm:
         display_matrix(get_snake_vision_matrix(
-            snake, green_apples, red_apple, GRID_SIZE))
+            snake, green_apples, red_apple, gridsize))
         print(action)
     return vision, reward, True, red_apple
 
 
-def train_snake(agent, num_episodes=1000, visual=True, learn=True,
+def train_snake(agent, num_episodes=1000, gridsize=10, visual=True, learn=True,
                 noepsil=False, displayterm=False):
     """ Boucle d'entraînement """
     snake_sizes = []
@@ -126,11 +127,11 @@ def train_snake(agent, num_episodes=1000, visual=True, learn=True,
         agent.no_epsilon()
     for episode in range(num_episodes):
         agent.decay_epsilon()
-        green_apples, red_apple, snake, running, reward = reset_game()
+        green_apples, red_apple, snake, running, reward = reset_game(gridsize)
         num_moves = 0
         while running:
             if visual:
-                draw_board(screen, snake, green_apples, red_apple)
+                draw_board(screen, snake, green_apples, red_apple, gridsize)
                 pygame.display.flip()
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -151,9 +152,9 @@ def train_snake(agent, num_episodes=1000, visual=True, learn=True,
                 next_step = False
 
             vision, reward, running, red_apple = play_step(
-                agent, snake, green_apples, red_apple, displayterm)
+                agent, snake, green_apples, red_apple, displayterm, gridsize)
             next_vision = agent.get_reduced_state(get_snake_vision_simple(
-                snake, green_apples, red_apple, GRID_SIZE))
+                snake, green_apples, red_apple, gridsize))
             num_moves += 1
             if learn:
                 agent.update_q_value(vision, agent.last_action, reward,
@@ -172,8 +173,9 @@ def main():
     if args.visual == "on":
         pygame.init()
         global screen
-        screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
-        pygame.display.set_caption("Snake 10x10")
+        screen = pygame.display.set_mode(
+            (CELL_SIZE * args.grid, CELL_SIZE * args.grid))
+        pygame.display.set_caption(f"Snake {args.grid}x{args.grid}")
 
     agent = Agent()
 
@@ -184,6 +186,7 @@ def main():
             print(f"⚠️ Fichier {args.load} introuvable !")
 
     snake_sizes = train_snake(agent, num_episodes=args.sessions,
+                              gridsize=args.grid,
                               visual=(args.visual == "on"),
                               learn=not args.dontlearn,
                               noepsil=(args.noepsil == "on"),
