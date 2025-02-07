@@ -168,43 +168,46 @@ def train_snake(agent, num_episodes=1000, gridsize=10, visual=True, learn=True,
 
 def main():
     """ Fonction principale avec gestion des arguments """
-    args = parse_args()
+    try:
+        args = parse_args()
 
-    if args.visual == "on":
-        pygame.init()
-        global screen
-        screen = pygame.display.set_mode(
-            (CELL_SIZE * args.grid, CELL_SIZE * args.grid))
-        pygame.display.set_caption(f"Snake {args.grid}x{args.grid}")
+        if args.visual == "on":
+            pygame.init()
+            global screen
+            screen = pygame.display.set_mode(
+                (CELL_SIZE * args.grid, CELL_SIZE * args.grid))
+            pygame.display.set_caption(f"Snake {args.grid}x{args.grid}")
 
-    agent = Agent()
+        agent = Agent()
 
-    if args.load:
-        if os.path.exists(args.load):
-            agent.import_model(args.load)
-        else:
-            print(f"⚠️ Fichier {args.load} introuvable !")
+        if args.load:
+            if os.path.exists(args.load):
+                agent.import_model(args.load)
+            else:
+                print(f"⚠️ Fichier {args.load} introuvable !")
 
-    snake_sizes = train_snake(agent, num_episodes=args.sessions,
-                              gridsize=args.grid,
-                              visual=(args.visual == "on"),
-                              learn=not args.dontlearn,
-                              noepsil=(args.noepsil == "on"),
-                              displayterm=(args.displayterm == "on"))
-    if args.visual == "on":
-        pygame.quit()
+        snake_sizes = train_snake(agent, num_episodes=args.sessions,
+                                  gridsize=args.grid,
+                                  visual=(args.visual == "on"),
+                                  learn=not args.dontlearn,
+                                  noepsil=(args.noepsil == "on"),
+                                  displayterm=(args.displayterm == "on"))
+        if args.visual == "on":
+            pygame.quit()
 
-    save = not args.dontsave
-    if save:
-        agent.export_model(f'{args.sessions}sess')
+        save = not args.dontsave
+        if save:
+            agent.export_model(f'{args.sessions}sess')
 
-    # Affichage des stats
-    if snake_sizes:
-        max_size = max([r[0] for r in snake_sizes])
-        max_moves = max([r[1] for r in snake_sizes])
-        print(f"Taille max atteinte : {max_size},\
-Déplacements max : {max_moves}")
-        graph(snake_sizes)
+        # Affichage des stats
+        if snake_sizes:
+            max_size = max([r[0] for r in snake_sizes])
+            max_moves = max([r[1] for r in snake_sizes])
+            print(f"Taille max atteinte : {max_size},\
+    Déplacements max : {max_moves}")
+            graph(snake_sizes)
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":
