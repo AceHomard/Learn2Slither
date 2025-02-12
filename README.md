@@ -122,5 +122,5 @@ The script generates graphs to analyze learning progress:
 
 ## 🖼️ Screenshots
 
-### 1️⃣ Training Mode (Graphical View)
+### Training Mode (Graphical View)
 ![Training Mode](snake_1000sess.png)
