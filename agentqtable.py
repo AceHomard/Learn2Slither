@@ -98,5 +98,5 @@ class Agent:
             self.q_table = np.load(filename)
             print(f"✅ Model loaded from {filename}")
         except FileNotFoundError:
-            print(f"⚠️ File {filename} not found, Q-table initialized as empty.")
+            print(f"⚠️ File {filename} not found, Q-table init as empty.")
             self.q_table = np.zeros((256, len(ACTIONS)))
