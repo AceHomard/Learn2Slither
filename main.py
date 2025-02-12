@@ -11,6 +11,21 @@ import pandas as pd
 
 
 def reset_game(gridsize):
+    """
+    Resets the game environment by spawning a new snake, green apples,
+    and a red apple.
+
+    Parameters:
+    gridsize (int): The size of the game grid.
+
+    Returns:
+    tuple: A tuple containing the following elements:
+        - green_apples (list): List of green apple positions on the grid.
+        - red_apple (tuple): Position of the red apple on the grid.
+        - snake (list): List of snake body positions.
+        - running (bool): A flag indicating whether the game is running.
+        - reward (int): The initial reward for the game.
+    """
     green_apples = spawn_apples(gridsize, num_apples=2)
     red_apple = spawn_apple(gridsize, snake=[green_apples])
     snake = spawn_snake(length=3, grid_size=gridsize,
@@ -22,64 +37,62 @@ def reset_game(gridsize):
 
 def graph(results):
     """
-        Affiche l'évolution de la taille du serpent
-        et du nombre de déplacements
+    Displays the evolution of the snake's size
+    and the number of moves.
     """
-    snake_sizes, move_counts = zip(*results)  # Extraction des données
+    snake_sizes, move_counts = zip(*results)  # Extract data
     episodes = range(len(snake_sizes))
 
     plt.figure(figsize=(12, 6))
 
-    # Courbe de la taille du serpent
+    # Snake size curve
     plt.subplot(2, 1, 1)
-    plt.plot(episodes, snake_sizes, alpha=0.3, label="Taille brute",
-             color="blue")
+    plt.plot(episodes, snake_sizes, alpha=0.3, label="Size", color="blue")
     plt.plot(pd.Series(snake_sizes).rolling(window=100).mean(),
-             label="Moyenne mobile (100)", color="red", linewidth=2)
-    plt.ylabel("Taille du serpent")
+             label="Moving Average (100)", color="red", linewidth=2)
+    plt.ylabel("Snake Size")
     plt.legend()
     plt.grid(True, linestyle="--", alpha=0.5)
 
-    # Courbe du nombre de déplacements
+    # Move count curve
     plt.subplot(2, 1, 2)
-    plt.plot(episodes, move_counts, alpha=0.3, label="Déplacements bruts",
-             color="green")
+    plt.plot(episodes, move_counts, alpha=0.3, label="Moves", color="green")
     plt.plot(pd.Series(move_counts).rolling(window=100).mean(),
-             label="Moyenne mobile (100)", color="orange", linewidth=2)
-    plt.xlabel("Épisode")
-    plt.ylabel("Nombre de déplacements")
+             label="Moving Average (100)", color="orange", linewidth=2)
+    plt.xlabel("Episode")
+    plt.ylabel("Number of Moves")
     plt.legend()
     plt.grid(True, linestyle="--", alpha=0.5)
 
-    plt.suptitle("Évolution de la taille et des déplacements du serpent")
+    plt.suptitle("Evolution of Snake Size and Moves")
     plt.show()
 
 
 def parse_args():
-    """Gestion des arguments en ligne de commande"""
+    """Handles command-line arguments for training the Snake agent."""
     parser = argparse.ArgumentParser(
-        description="Entraînement d'un agent Snake avec Q-Learning")
+        description="Train a Snake agent using Q-Learning")
     parser.add_argument("-visual", choices=["on", "off"], default="on",
-                        help="Activer/désactiver l'affichage graphique")
+                        help="Enable/disable graphical display")
     parser.add_argument("-load", type=str,
-                        help="Charger un modèle pré-entraîné (fichier)")
+                        help="Load a pre-trained model (file path)")
     parser.add_argument("-sessions", type=int, default=250,
-                        help="Nombre d'épisodes d'entraînement")
+                        help="Number of training episodes")
     parser.add_argument("-dontlearn", action="store_true",
-                        help="Désactiver l'apprentissage (mode validation)")
+                        help="Disable learning (evaluation mode)")
     parser.add_argument("-dontsave", action="store_true",
-                        help="Désactiver la sauvegarde du model")
+                        help="Disable model saving")
     parser.add_argument("-noepsil", choices=["on", "off"], default="off",
-                        help="Empêcher l'Exploration")
+                        help="Disable exploration")
     parser.add_argument("-displayterm", choices=["on", "off"], default="off",
-                        help="Affichage terminal")
+                        help="Display state matrix in terminal")
     parser.add_argument("-grid", type=int, default=10,
-                        help="Size du plateau")
+                        help="Size of the grid")
     return parser.parse_args()
 
 
 def play_step(agent, snake, green_apples, red_apple, displayterm, gridsize):
-    """ Exécute une action et met à jour l'environnement """
+    """Executes an action and updates the environment."""
     vision = agent.get_reduced_state(
         get_snake_vision_simple(snake, green_apples, red_apple, gridsize))
     action = agent.choose_action(vision)
@@ -119,9 +132,9 @@ def play_step(agent, snake, green_apples, red_apple, displayterm, gridsize):
 
 def train_snake(agent, num_episodes=1000, gridsize=10, visual=True, learn=True,
                 noepsil=False, displayterm=False):
-    """ Boucle d'entraînement """
+    """Training loop for the Snake agent."""
     snake_sizes = []
-    next_step = False  # Variable pour contrôler le passage à l'étape suivante
+    next_step = False
     step_by_step = True
     if noepsil:
         agent.no_epsilon()
@@ -167,7 +180,7 @@ def train_snake(agent, num_episodes=1000, gridsize=10, visual=True, learn=True,
 
 
 def main():
-    """ Fonction principale avec gestion des arguments """
+    """Main function to handle arguments and run the Snake training."""
     try:
         args = parse_args()
 
@@ -184,7 +197,7 @@ def main():
             if os.path.exists(args.load):
                 agent.import_model(args.load)
             else:
-                print(f"⚠️ Fichier {args.load} introuvable !")
+                print(f"⚠️ File {args.load} not found!")
 
         snake_sizes = train_snake(agent, num_episodes=args.sessions,
                                   gridsize=args.grid,
@@ -199,12 +212,11 @@ def main():
         if save:
             agent.export_model(f'{args.sessions}sess')
 
-        # Affichage des stats
+        # Display stats
         if snake_sizes:
             max_size = max([r[0] for r in snake_sizes])
             max_moves = max([r[1] for r in snake_sizes])
-            print(f"Taille max atteinte : {max_size},\
-    Déplacements max : {max_moves}")
+            print(f"Max size reached: {max_size}, Max moves: {max_moves}")
             graph(snake_sizes)
     except Exception as e:
         print(e)

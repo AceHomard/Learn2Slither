@@ -3,27 +3,26 @@ import random
 
 def spawn_snake(length=3, grid_size=10, green_apples=[], red_apple=None):
     """
-        Génère un serpent aléatoire en partant
-        de la tête et en construisant le corps.
+    Generates a random snake starting from the head and constructing the body.
     """
     while True:
-        # Choisir une position de départ aléatoire pour la tête
+        # Choose a random starting position for the head
         head_x = random.randint(0, grid_size - 1)
         head_y = random.randint(0, grid_size - 1)
         head = (head_x, head_y)
 
-        # Vérifie que la tête n'est pas sur une pomme
+        # Check that the head is not on an apple
         all_apples = green_apples + ([red_apple] if red_apple else [])
         if head in all_apples:
             continue
 
-        # Initialisation du serpent avec la tête
+        # Initialize the snake with the head
         snake = [head]
 
-        # Directions possibles : UP, DOWN, LEFT, RIGHT
+        # Possible directions: UP, DOWN, LEFT, RIGHT
         directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
-        # Générer les segments du corps
+        # Generate the body segments
         for _ in range(length - 1):
             possible_directions = []
             for dx, dy in directions:
@@ -31,88 +30,87 @@ def spawn_snake(length=3, grid_size=10, green_apples=[], red_apple=None):
                 new_y = snake[-1][1] + dy
                 new_pos = (new_x, new_y)
 
-                # Vérifier que la position est valide
+                # Check if the position is valid
                 if (
-                    0 <= new_x < grid_size and  # Dans la grille
-                    0 <= new_y < grid_size and  # Dans la grille
-                    new_pos not in snake and  # Pas sur le corps du serpent
-                    new_pos not in all_apples  # Pas sur une pomme
+                    0 <= new_x < grid_size and  # Inside the grid
+                    0 <= new_y < grid_size and  # Inside the grid
+                    new_pos not in snake and  # Not on the snake's body
+                    new_pos not in all_apples  # Not on an apple
                 ):
                     possible_directions.append((dx, dy))
 
-            # Si aucune direction n'est valide, le placement échoue
+            # If no valid direction is found, the placement fails
             if not possible_directions:
                 break
 
-            # Choisir une direction aléatoire parmi les possibles
+            # Choose a random direction from the possible ones
             dx, dy = random.choice(possible_directions)
             new_segment = (snake[-1][0] + dx, snake[-1][1] + dy)
             snake.append(new_segment)
 
-        # Si le serpent a la bonne longueur, on le retourne
+        # If the snake has the correct length, return it
         if len(snake) == length:
             return snake
 
 
 def get_snake_vision_simple(snake, green_apples, red_apple, grid_size):
     """
-    Retourne une vision simplifiée des 4 directions autour du serpent.
-    Les directions sans obstacles ('S', 'G', 'R')
-    sont considérées comme neutres (0), sauf si elles sont
-    proches du mur à 1 case de distance.
+    Returns a simplified vision of the 4 directions around the snake.
+    Directions with no obstacles ('S', 'G', 'R') are considered neutral (0),
+    unless they are near the wall within 1 tile of distance.
     """
-    head_x, head_y = snake[0]  # Position de la tête du serpent
+    head_x, head_y = snake[0]  # Position of the snake's head
 
-    # Directions : UP, DOWN, LEFT, RIGHT
+    # Directions: UP, DOWN, LEFT, RIGHT
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     vision = []
 
     for dx, dy in directions:
         x, y = head_x, head_y
-        found = False  # Flag pour savoir si on a trouvé un obstacle
+        found = False  # Flag to indicate if an obstacle is found
 
         while 0 <= x < grid_size and 0 <= y < grid_size:
             x += dx
             y += dy
 
-            # Vérification des obstacles
+            # Check for obstacles
             if (x, y) in snake:
-                vision.append("W")  # Corps du serpent
+                vision.append("W")  # Snake's body
                 found = True
                 break
             elif (x, y) in green_apples:
-                vision.append("G")  # Pomme verte
+                vision.append("G")  # Green apple
                 found = True
                 break
             elif (x, y) == red_apple:
-                vision.append("R")  # Pomme rouge
+                vision.append("R")  # Red apple
                 found = True
                 break
 
-        if not found:  # Si aucun obstacle n'a été trouvé
-            # Vérifier si la tête est proche du mur à 1 case
+        if not found:  # If no obstacle is found
+            # Check if the head is near the wall within 1 tile
             if head_x + dx < 0 or head_x + dx >= grid_size or head_y + dy < 0 \
                     or head_y + dy >= grid_size:
-                vision.append("W")  # Si proche du mur, marquer comme 'W'
+                vision.append("W")  # If near the wall, mark as 'W'
             else:
-                vision.append("0")  # Sinon direction neutre
+                vision.append("0")  # Otherwise, neutral direction
     return vision
 
 
 def get_snake_vision_matrix(snake, green_apples, red_apple, grid_size):
     """
-    Retourne une matrice représentant la vision du serpent.
+    Returns a matrix representing the snake's vision.
     """
-    head_x, head_y = snake[0]  # Position de la tête du serpent
+    head_x, head_y = snake[0]  # Position of the snake's head
 
-    # Initialiser la matrice vide
+    # Initialize the empty matrix
     matrix = [[" " for _ in range(grid_size + 2)]
               for _ in range(grid_size + 2)]
 
-    # Placer la tête
-    matrix[head_x+1][head_y+1] = "H"
+    # Place the head
+    matrix[head_x + 1][head_y + 1] = "H"
 
-    # Directions : UP, DOWN, LEFT, RIGHT
+    # Directions: UP, DOWN, LEFT, RIGHT
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
     for dx, dy in directions:
@@ -121,23 +119,23 @@ def get_snake_vision_matrix(snake, green_apples, red_apple, grid_size):
             x += dx
             y += dy
             if not (0 <= x < grid_size and 0 <= y < grid_size):
-                break  # Sortie de la grille
+                break  # Out of bounds
             if (x, y) in snake:
-                matrix[x+1][y+1] = "S"
+                matrix[x + 1][y + 1] = "S"
             elif (x, y) in green_apples:
-                matrix[x+1][y+1] = "G"
+                matrix[x + 1][y + 1] = "G"
             elif (x, y) == red_apple:
-                matrix[x+1][y+1] = "R"
+                matrix[x + 1][y + 1] = "R"
             else:
-                matrix[x+1][y+1] = "0"
-        matrix[x+1][y+1] = "W"
+                matrix[x + 1][y + 1] = "0"
+        matrix[x + 1][y + 1] = "W"
     return matrix
 
 
 def display_matrix(matrix):
     """
-    Affiche la matrice sous forme de chaîne de caractères.
+    Displays the matrix as a string.
     """
     for row in matrix:
-        print("".join(row))  # Convertir chaque ligne en chaîne et l'afficher
+        print("".join(row))  # Convert each row to a string and print it
     print()

@@ -1,79 +1,126 @@
-Learn2Slither - Reinforcement Learning Snake Game 🐍
-Overview
+# 🐍 Learn2Slither - Reinforcement Learning Snake Game
 
-Learn2Slither is a reinforcement learning project where an agent learns to play Snake through Q-Learning. The agent interacts with an environment, receives rewards, and improves its performance over time by optimizing its policy.
-Features
+## 📖 Overview
 
-✅ Q-Learning implementation with a reduced state space (256 states).
-✅ Customizable grid size via command-line arguments.
-✅ Graphical and terminal visualization options.
-✅ Training and evaluation modes (with or without learning).
-✅ Model saving/loading for training persistence.
-Installation
-Requirements
+**Learn2Slither** is a reinforcement learning project where an AI agent learns to play the classic Snake game using **Q-Learning**. The agent interacts with the environment, receives rewards, and optimizes its policy to maximize performance over time.
 
-    Python 3.8+
-    Required libraries:
+---
 
-    pip install pygame numpy matplotlib pandas
+## ✨ Features
 
-Clone the Repository
+✅ **Q-Learning Implementation** with a reduced state space (256 states).  
+✅ **Customizable Grid Size** via command-line arguments.  
+✅ **Graphical and Terminal Visualization** options.  
+✅ **Training and Evaluation Modes** (with or without learning).  
+✅ **Model Saving/Loading** for training persistence.  
+✅ **Step-by-Step Mode** for live evaluation of the agent's decisions.  
 
+---
+
+## 📥 Installation
+
+### Clone the Repository
+    
+```bash
 git clone https://github.com/AceHomard/Learn2Slither.git
 cd Learn2Slither
+```
+    
+### Create a Virtual Environment (Recommended)
+```bash
+python -m venv venv  # Create a virtual environment
+source venv/bin/activate  # On macOS/Linux
+venv\Scripts\activate  # On Windows
+```
+### Install Dependencies
+```bash
+pip install -r requirements.txt 
+```
+---
 
-Usage
+## 🚀 Usage
 Train the Snake
 
 Run the script with:
+```bash
+python main.py -visual on
+```
+---
 
-python main.py -sessions 500 -grid 10 -visual on
+## ⚠️ Important Notice
 
-📌 Available Arguments:
-Argument	Description	Default
--visual	Enable (on) or disable (off) the graphical display	on
--load	Load a pre-trained model (.npy file)	None
--sessions	Number of training episodes	250
--dontlearn	Disable learning (evaluation mode)	False
--dontsave	Prevent model saving	False
--noepsil	Disable exploration (always exploit best action)	off
--displayterm	Show the state matrix in terminal	off
--grid	Set the grid size	10
-Example Commands
+If `-visual on` is enabled, the **step-by-step mode** is **active by default**.  
+- Press **`O`** to **disable** step-by-step mode.  
+- Press **`P`** to **re-enable** it.  
 
-1️⃣ Train for 1000 episodes with a 12x12 grid
+In step-by-step mode, you must **press the `Space` bar** to advance each step of the snake's movement.
 
-python main.py -sessions 1000 -grid 12
+---
+## 📌 Available Arguments
 
+| Argument      | Description                                      | Default |
+|--------------|--------------------------------------------------|---------|
+| `-visual`    | Enable (`on`) or disable (`off`) the graphical display | `on`    |
+| `-load`      | Load a pre-trained model (`.npy` file)           | `None`  |
+| `-sessions`  | Number of training episodes                     | `250`   |
+| `-dontlearn` | Disable learning (evaluation mode)              | `False` |
+| `-dontsave`  | Prevent model saving                            | `False` |
+| `-noepsil`   | Disable exploration (always exploit best action) | `off`   |
+| `-displayterm` | Show the state matrix in terminal             | `off`   |
+| `-grid`      | Set the grid size                               | `10`    |
+
+---
+## 🎯 Example Commands
+
+1️⃣ Train for 1000 episodes (fast training without visualization)
+```bash
+python main.py -visual off -sessions 1000
+```
 2️⃣ Load a pre-trained model and evaluate
+```bash
+python main.py -sessions 10 -load models/1000sess.npy -dontlearn -noepsil on
+```
+---
 
-python main.py -load models/1000sess.npy -dontlearn
+## 🛠 How It Works
 
-How It Works
-State Representation
+The Snake's environment is simplified into a **4^4 = 256 state space**.
 
-The Snake's environment is simplified into a 4^4 = 256 state space. The agent "sees" its surroundings as an encoded vector of values.
-Q-Learning Algorithm
+The agent "sees" its surroundings as an encoded vector of values.
+## Q-Learning Algorithm
+- Exploration vs Exploitation: Uses epsilon-greedy to balance randomness and optimal moves.
 
-    Exploration vs Exploitation: Uses epsilon-greedy to balance randomness and optimal moves.
-    Q-Table Update: The agent updates its Q-table based on rewards:
-    Q(s,a)←Q(s,a)+α[r+γmax⁡Q(s′,a′)−Q(s,a)]
-    Q(s,a)←Q(s,a)+α[r+γmaxQ(s′,a′)−Q(s,a)]
+- Q-Table Update: The agent updates its Q-table based on rewards:
+    > Q(s,a)←Q(s,a)+α[r+γmax⁡Q(s′,a′)−Q(s,a)]
+---
 
-Rewards System
-Action	Reward
-Eating a green apple	+50
-Eating a red apple	-5
-Hitting a wall or itself	-50
-Normal move	0
-Results Visualization
+## 🎯 Rewards System
 
-The script generates graphs to analyze learning progress:
-📈 Snake length evolution over episodes.
-📉 Number of moves per episode.
-Model Saving & Loading
+| Action                     | Reward  |
+|----------------------------|---------|
+| Eating a green apple       | `+50`   |
+| Eating a red apple         | `-10`   |
+| Hitting a wall or itself   | `-50`   |
+| Normal move                | `-0.1`  |
+
+---
+
+## 💾 Model Saving & Loading
 
 The model is stored as a .npy file in the models/ directory.
 
     Save after training: models/{sessions}sess.npy
     Load an existing model: Use -load with the filename.
+---
+## 📊 Results Visualization
+
+The script generates graphs to analyze learning progress:
+
+📈 Snake length evolution over episodes.
+
+📉 Number of moves per episode.
+
+## 🖼️ Screenshots
+
+### 1️⃣ Training Mode (Graphical View)
+![Training Mode](snake_1000sess.png)

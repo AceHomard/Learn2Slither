@@ -1,12 +1,12 @@
-# Paramètres du jeu
+# Game parameters
 CELL_SIZE = 60
 
-RGA = 50
-RRA = -10
-RD = -50
-RN = -0.1
+RGA = 50  # Green apple reward
+RRA = -10  # Red apple reward
+RD = -50  # Wall or self collision penalty
+RN = -0.1  # Normal move penalty
 
-# Mappage des actions vers les directions
+# Mapping actions to directions
 ACTIONS = {
     "UP": (-1, 0),
     "DOWN": (1, 0),
@@ -14,14 +14,15 @@ ACTIONS = {
     "RIGHT": (0, 1),
 }
 
+# Object mapping (states)
 OBJECT_MAPPING = {
-    "W": 0,  # Mur ou corps du serpent
-    "G": 1,  # Pomme verte
-    "R": 2,  # Pomme rouge
-    "0": 3   # Case vide
+    "W": 0,  # Wall or snake body
+    "G": 1,  # Green apple
+    "R": 2,  # Red apple
+    "0": 3   # Empty cell
 }
 
-# Actions opposées
+# Opposite directions for actions
 OP_DIR = {
     "UP": "DOWN",
     "DOWN": "UP",
