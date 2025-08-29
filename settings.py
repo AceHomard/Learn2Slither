@@ -1,10 +1,10 @@
 # Game parameters
 CELL_SIZE = 60
 
-RGA = 50  # Green apple reward
-RRA = -10  # Red apple reward
-RD = -50  # Wall or self collision penalty
-RN = -0.1  # Normal move penalty
+RGA = 100  # Green apple reward
+RRA = -5  # Red apple reward
+RD = -500  # Wall or self collision penalty
+RN = -0.5  # Normal move penalty
 
 # Mapping actions to directions
 ACTIONS = {

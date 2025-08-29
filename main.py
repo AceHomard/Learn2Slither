@@ -195,7 +195,10 @@ def main():
 
         if args.load:
             if os.path.exists(args.load):
-                agent.import_model(args.load)
+                if os.path.isfile(args.load):
+                    agent.import_model(args.load)
+                else:
+                    print(f"⚠️ {args.load} is a directory, not a file!")
             else:
                 print(f"⚠️ File {args.load} not found!")
 

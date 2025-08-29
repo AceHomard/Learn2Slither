@@ -40,7 +40,6 @@ class Agent:
         state = [OBJECT_MAPPING[obj] for obj in snake_vision_matrix]
         # Calculating the state index in base 4
         state_index = sum(val * (4 ** idx) for idx, val in enumerate(state))
-
         return state_index
 
     def choose_action(self, state):
@@ -99,4 +98,7 @@ class Agent:
             print(f"✅ Model loaded from {filename}")
         except FileNotFoundError:
             print(f"⚠️ File {filename} not found, Q-table init as empty.")
+            self.q_table = np.zeros((256, len(ACTIONS)))
+        except Exception as e:
+            print(f"⚠️ File {filename} error:", e, "\n Init as Empty.")
             self.q_table = np.zeros((256, len(ACTIONS)))
